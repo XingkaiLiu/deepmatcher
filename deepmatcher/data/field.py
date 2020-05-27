@@ -81,6 +81,16 @@ class FastTextBinary(vocab.Vectors):
         self.dim = len(self['a'])
 
 
+class OwnBinary(FastTextBinary):
+    def __init__(self, name=None, cache=None):
+        """
+        Arguments:
+        name: name of the embeddings
+        cache: directory for cached embeddings
+        """
+        super().cache(name=name, cache=cache)
+        
+
 class MatchingVocab(vocab.Vocab):
 
     def extend_vectors(self, tokens, vectors):
@@ -156,6 +166,10 @@ class MatchingField(data.Field):
                         elif parts[2] == 'vec' and parts[1] == 'crawl':
                             vec_data = FastText(
                                 suffix='crawl-300d-2M.vec.zip', cache=cache)
+                    elif vec_name[-3:] == 'bin':
+                        vec_data = OwnBinary(name=vec_name, cache=cache)
+                    else:
+                        vec_data = vocab.Vectors(name=vec_name, cache=cache)
                 if vec_data is None:
                     vec_data = vocab.pretrained_aliases[vec_name](cache=cache)
                 cls._cached_vec_data[vec_name] = vec_data
