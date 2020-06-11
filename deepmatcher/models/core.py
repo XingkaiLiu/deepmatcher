@@ -261,7 +261,7 @@ class MatchingModel(nn.Module):
         """
         return Runner.predict(self, *args, **kwargs)
 
-    def initialize(self, train_dataset, init_batch=None):
+    def initialize(self, train_dataset, init_batch=None, update_embedding=False):
         r"""Initialize (not lazily) the matching model given the actual training data.
 
         Instantiates all sub-components and their trainable parameters.
@@ -340,7 +340,7 @@ class MatchingModel(nn.Module):
         self.classifier = _utils.get_module(
             Classifier, self.classifier, hidden_size=self.hidden_size)
 
-        self._reset_embeddings(train_dataset.vocabs)
+        self._reset_embeddings(train_dataset.vocabs, update_embedding=update_embedding)
 
         # Instantiate all components using a small batch from training set.
         if not init_batch:
@@ -361,7 +361,7 @@ class MatchingModel(nn.Module):
         logger.info('Successfully initialized MatchingModel with {:d} trainable '
                     'parameters.'.format(tally_parameters(self)))
 
-    def _reset_embeddings(self, vocabs):
+    def _reset_embeddings(self, vocabs, update_embedding=False):
         self.embed = dm.modules.ModuleMap()
         field_vectors = {}
         for name in self.meta.all_text_fields:
@@ -370,7 +370,7 @@ class MatchingModel(nn.Module):
                 vectors_size = vectors.shape
                 embed = nn.Embedding(vectors_size[0], vectors_size[1])
                 embed.weight.data.copy_(vectors)
-                embed.weight.requires_grad = False
+                embed.weight.requires_grad = update_embedding
                 field_vectors[vectors] = dm.modules.NoMeta(embed)
             self.embed[name] = field_vectors[vectors]
 

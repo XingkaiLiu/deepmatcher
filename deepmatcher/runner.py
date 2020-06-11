@@ -280,6 +280,7 @@ class Runner(object):
               label_smoothing=0.05,
               save_every_prefix=None,
               save_every_freq=1,
+              update_embedding=False,
               **kwargs):
         """run_train(model, train_dataset, validation_dataset, best_save_path,epochs=30, \
             criterion=None, optimizer=None, pos_neg_ratio=None, pos_weight=None, \
@@ -295,7 +296,7 @@ class Runner(object):
             float: The best F1 score obtained by the model on the validation dataset.
         """
 
-        model.initialize(train_dataset)
+        model.initialize(train_dataset, update_embedding=update_embedding)
 
         model._register_train_buffer('optimizer_state', None)
         model._register_train_buffer('best_score', None)
